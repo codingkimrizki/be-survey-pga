@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "test:db": "node src/test-db.js"
+    "test:db": "node src/test-db.js",
+    "genMigrate": "sequelize-cli migration:generate --name",
+    "migrate": "sequelize-cli db:migrate",
+    "genSeed": "sequelize-cli seed:generate --name",
+    "seed": "sequelize-cli db:seed:all"
   },
   "keywords": [],
   "author": "",

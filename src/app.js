@@ -6,7 +6,9 @@ const cors = require('cors')
 const app = express()
 
 // middleware
-app.use(cors())
+app.use(cors({
+  origin: "http://localhost:5173"
+}))
 app.use(express.json())
 
 //questions
@@ -15,7 +17,7 @@ app.use('/api/questions', questionsRoute)
 
 //Users
 const UsersRoute = require('./routes/users.route')
-app.use('api/users', UsersRoute)
+app.use('/api/users', UsersRoute)
 
 //answers
 const AnswersRoute = require('./routes/answers.route')

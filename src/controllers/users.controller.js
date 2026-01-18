@@ -1,36 +1,38 @@
 const {findUserByEmail, createUser} = require ('../services/users.services')
 const httpStatus = require ('../constants/httpStatus')
 
-exports.UserRegister = async (req, res) => {
-    try {
-        const { email, password} = req.body
+exports.UserRegister = async (req, res, next) => {
+  try {
+    const { email, password } = req.body
 
-        //cek email sudah terdaftar atau belum
-        const existing = await findUserByEmail (email)
+    // 🔥 VALIDATION WAJIB
+    if (!email || !password) {
+      return res.status(400).json({
+        message: 'Email dan password wajib diisi'
+      })
+    }
 
-        if (existing) {
-            return res
-            .status(httpStatus.CONFLICT)
-            .json({ message: 'Email sudah digunakan' })
-        }
+    const existing = await findUserByEmail(email)
+    if (existing) {
+      return res.status(409).json({
+        message: 'Email sudah digunakan'
+      })
+    }
 
-        const user = await createUser({email, password})
+    const user = await createUser({ email, password })
 
-        return res
-        .status(httpStatus.CREATED)
-        .json({
-            message: 'User berhasil didaftarkan',
-            user: {
-                id: user.id_user,
-                email: user.email,
-                id_user_role: user.id_user_role
-            },
-        });
-
-    } catch (err) {
-    console
-    .error(err)
+    return res.status(201).json({
+      message: 'User berhasil didaftarkan',
+      user: {
+        id: user.id_user,
+        email: user.email,
+        id_user_role: user.id_user_role
+      }
+    })
+  } catch (err) {
+    console.error('REGISTER ERROR:', err)
     next(err)
   }
-};
+}
+
 
