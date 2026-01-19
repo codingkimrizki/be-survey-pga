@@ -1,4 +1,4 @@
-const {Users, UserRole} = require ('../../models')
+const {Users, UserRole, Token} = require ('../../models')
 const bcrypt = require('bcryptjs');
 
 exports.findUserByEmail = async (email) => {
@@ -42,4 +42,25 @@ exports.updateUserPassword = async (userId, hashedPassword) => {
   return await Users.update(
     { password: hashedPassword }, 
     { where: { id_users: userId } });
+};
+
+
+//token
+exports.verifyToken = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1]; // Ambil token tanpa "Bearer"
+    if (!token) return res.status(401).json({ message: 'Token missing' });
+
+    // cek apakah token ada di blacklist
+    const blacklisted = await Token.findOne({ where: { token } });
+    if (blacklisted) return res.status(401).json({ message: 'Token invalidated' });
+
+    // verify JWT
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    console.log(err);
+    return res.status(401).json({ message: 'Invalid token' });
+  }
 };

@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const {findUserByEmail, createUser, checkPassword} = require ('../services/users.services')
+const {findUserByEmail, createUser, checkPassword,BlacklistToken} = require ('../services/users.services')
 const httpStatus = require ('../constants/httpStatus')
 
 exports.UserRegister = async (req, res, next) => {
@@ -38,7 +38,7 @@ exports.UserRegister = async (req, res, next) => {
   }
 };
 
-exports.UserLogin = async (req, res, next) => {
+exports.UserLogin = async (req, res) => {
     try {
        const { email, password } = req.body;
        
@@ -75,6 +75,23 @@ exports.UserLogin = async (req, res, next) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+exports.UserLogout = async (req, res) => {
+  try {
+    const token = req.headers.authorization;
+    if (!token) return res.status(400).json({ message: "Token required" });
+
+    await BlacklistToken.create({ token });
+
+    return res.json({ message: "Logout success" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
 
 
 
