@@ -23,7 +23,7 @@ app.use('/api/users', UsersRoute)
 
 //answers
 const AnswersRoute = require('./routes/answers.route')
-app.use('api/answers', AnswersRoute)
+app.use('/api/answers', AnswersRoute)
 
 // route test
 app.get('/', (req, res) => {

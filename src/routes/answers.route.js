@@ -4,5 +4,6 @@ const router = express.Router()
 const answers = require('../controllers/answers.controller')
 
 router.post('/submit', answers.submitAnswers)
+router.get('/all', answers.supplierAnswers)
 
 module.exports = router

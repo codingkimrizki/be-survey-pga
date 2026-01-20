@@ -1,7 +1,5 @@
-const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const {findUserByEmail, createUser, checkPassword,BlacklistToken} = require ('../services/users.services')
-const httpStatus = require ('../constants/httpStatus')
+const {findUserByEmail, createUser, checkPassword, BlacklistToken} = require ('../services/users.services')
 
 exports.UserRegister = async (req, res, next) => {
   try {

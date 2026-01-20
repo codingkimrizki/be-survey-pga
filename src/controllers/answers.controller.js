@@ -1,25 +1,50 @@
-const { Answers } = require('../../models')
-const httpStatus = require('../constants/httpStatus')
+const answersService = require('../services/answers.services');
+const httpStatus = require('../constants/httpStatus');
 
 exports.submitAnswers = async (req, res) => {
-    try {
-        const answers = req.body;
+  try {
+    const answers = req.body;
 
-        if (!Array.isArray(answers)) {
-            return res
-            .status(httpStatus.BAD_REQUEST)
-            .json({message: "Input Must Be An Array"})
-        }
-
-        const submit = await  Answers.bulkCreate (answers)
-
-        res
-        .status(httpStatus.CREATED)   
-        .json({message: "Succes Input Answers", data: submit}) 
-
-    } catch (err) {
-       res
-       .status(httpStatus.INTERNAL_SERVER_ERROR) 
-       .json({error: err.message})
+    if (!Array.isArray(answers)) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json({ message: "Input Must Be An Array" });
     }
+
+    const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+
+    const submit = await answersService.createAnswers(answers, ipAddress);
+
+    res
+      .status(httpStatus.CREATED)
+      .json({ message: "Success Input Answers", data: submit });
+
+  } catch (err) {
+    console.error(err);
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ error: err.message });
+  }
+};
+
+// ambil semua jawaban untuk widget / supplier
+exports.supplierAnswers = async (req, res) => {
+  try {
+    const { answers, totalUniqueIp, statusSummary,  totalMajor } = await answersService.getAnswersWithIpStats()
+
+    res.status(httpStatus.OK).json({
+      data: answers,
+      totalData: answers.length,        // total jawaban
+      totalIpAddress: totalUniqueIp,    // total IP unik per tanggal
+      statusSummary,                    // status per IP
+      totalMajor
+    })
+  } catch (err) {
+    console.error(err)
+    res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: err.message })
+  }
 }
+
+
