@@ -1,5 +1,7 @@
-const {Users, UserRole, Token} = require ('../../models')
+const {Users, UserRole, BlacklistToken, PasswordResetToken} = require ('../../models')
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto')
+const nodemailer = require('nodemailer')
 
 exports.findUserByEmail = async (email) => {
     return await Users.findOne({ 
@@ -17,7 +19,6 @@ exports.checkPassword = async (plainPassword, hashedPassword) => {
   return await bcrypt.compare(plainPassword, hashedPassword);
 };
 
-
 //Register
 exports.createUser = async (data) => {
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -32,35 +33,68 @@ exports.createUser = async (data) => {
     return User;
 }
 
-
 exports.findUserById = async (id) => {
   return await Users.findByPk(id);
 };
 
-//forgotPassword
-exports.updateUserPassword = async (userId, hashedPassword) => {
-  return await Users.update(
-    { password: hashedPassword }, 
-    { where: { id_users: userId } });
-};
-
-
 //token
-exports.verifyToken = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(' ')[1]; // Ambil token tanpa "Bearer"
-    if (!token) return res.status(401).json({ message: 'Token missing' });
-
-    // cek apakah token ada di blacklist
-    const blacklisted = await Token.findOne({ where: { token } });
-    if (blacklisted) return res.status(401).json({ message: 'Token invalidated' });
-
-    // verify JWT
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    console.log(err);
-    return res.status(401).json({ message: 'Invalid token' });
-  }
+exports.logout = async (token) => {
+  console.log('TOKEN MASUK SERVICE:', token);
+  return await BlacklistToken.create({ token });
 };
+
+/// create token
+exports.createPasswordResetToken = async (userId) => {
+  const token = crypto.randomBytes(32).toString('hex')
+
+  await PasswordResetToken.create({
+    user_id: userId,
+    token,
+    expired_at: new Date(Date.now() + 60 * 60 * 1000),
+  })
+
+  return token
+}
+
+// validate token
+exports.getValidResetToken = async (token) => {
+  return PasswordResetToken.findOne({
+    where: {
+      token,
+      used_at: null,
+    },
+  })
+}
+
+// invalidate token
+exports.invalidateResetToken = async (id) => {
+  return PasswordResetToken.update(
+    { used_at: new Date() },
+    { where: { id } }
+  )
+}
+
+// send email
+exports.sendResetEmail = async (email, token) => {
+  const resetLink =
+    `${process.env.FRONTEND_URL}/recovery-password?token=${token}`
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  })
+
+  await transporter.sendMail({
+    from: `Hirose App <${process.env.SMTP_USER}>`,
+    to: email,
+    subject: 'Reset Password',
+    html: `
+      <p>Click link below to reset your password:</p>
+      <a href="${resetLink}">${resetLink}</a>
+      <p>This link will expire in 1 hour</p>
+    `,
+  })
+}

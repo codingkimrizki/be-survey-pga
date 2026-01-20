@@ -1,7 +1,5 @@
-const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const {findUserByEmail, createUser, checkPassword,BlacklistToken} = require ('../services/users.services')
-const httpStatus = require ('../constants/httpStatus')
+const {findUserByEmail, createUser, checkPassword, logout, createPasswordResetToken, sendResetEmail} = require ('../services/users.services')
 
 exports.UserRegister = async (req, res, next) => {
   try {
@@ -78,17 +76,71 @@ exports.UserLogin = async (req, res) => {
 
 exports.UserLogout = async (req, res) => {
   try {
-    const token = req.headers.authorization;
-    if (!token) return res.status(400).json({ message: "Token required" });
+    const token = req.headers.authorization?.split(' ')[1];
+    console.log('TOKEN DARI CONTROLLER:', token); // 🔍 DEBUG
+    if (!token) {
+      return res.status(400).json({ message: 'Token required' });
+    }
 
-    await BlacklistToken.create({ token });
+    await logout(token);
 
-    return res.json({ message: "Logout success" });
+    return res.json({ message: 'Logout success' });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+exports.UserForgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body
+    const user = await findUserByEmail(email)
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    const token = await createPasswordResetToken(user.id_users)
+
+    await sendResetEmail(email, token)
+
+    res.json({ message: 'Reset link sent' })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+exports.ResetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body
+
+    const resetToken = await getValidResetToken(token)
+    if (!resetToken) {
+      return res.status(400).json({ message: 'Invalid token' })
+    }
+
+    if (resetToken.expired_at < new Date()) {
+      return res.status(400).json({ message: 'Token expired' })
+    }
+
+    const user = await Users.findByPk(resetToken.user_id)
+
+    user.password = await bcrypt.hash(newPassword, 10)
+    await user.save()
+
+    await invalidateResetToken(resetToken.id)
+
+    res.json({ message: 'Password reset success' })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
+
+
+
 
 
 
