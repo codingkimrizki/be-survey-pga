@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
 const {findUserByEmail, createUser, checkPassword, logout, createPasswordResetToken, sendResetEmail} = require ('../services/users.services')
 
+
 exports.UserRegister = async (req, res, next) => {
   try {
     const { name, email, password } = req.body

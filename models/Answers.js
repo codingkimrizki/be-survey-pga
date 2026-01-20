@@ -1,35 +1,34 @@
-'use strict'
+'use strict';
+const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    const Answers = sequelize.define(
-        'Answers',
-        {
-            id_answers: {
-                type: DataTypes.INTEGER, 
-                autoIncrement: true, 
-                primaryKey: true,
-                allowNull: false
-            },
-            id_questions: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
-            answer_value: {
-                type: DataTypes.TEXT,
-                allowNull: true
-            },
-        },
-        {
-            tableName: 'users',
-            timestamps: true
-        }
-    );
+  class Answers extends Model {
+    static associate(models) {
+      // bisa ditambah relasi ke Question/User kalau perlu
+    }
+  }
 
-    Answers.associate = (models) => {
-        Answers.belongsTo(models.Questions, {
-            foreignKey: 'id_questions'
-        });
-    };
+  Answers.init(
+    {
+      id_questions: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      answer: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      ipAddress: {
+        type: DataTypes.STRING,
+        allowNull: false
+      }
+    },
+    {
+      sequelize,
+      modelName: 'Answers',
+      tableName: 'answers'
+    }
+  );
 
-    return Answers;
+  return Answers;
 };
