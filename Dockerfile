@@ -13,6 +13,9 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install --include=dev
 
+# Pastikan semua binary di node_modules/.bin executable
+RUN chmod +x ./node_modules/.bin/*
+
 # Copy semua file project
 COPY . .
 
