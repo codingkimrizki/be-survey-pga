@@ -7,7 +7,10 @@ const app = express()
 
 // middleware
 app.use(cors({
-  origin: "http://localhost:5173",
+    origin: [
+    "http://localhost:5173",
+    "http://192.168.147.210:4182"
+  ],
   credentials: true,
 }))
 
