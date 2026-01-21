@@ -16,7 +16,7 @@
   "production": {
     "username": "root",
     "password": "root",
-    "database": "pga",
+    "database": "pga-survey",
     "host": "db",
     "dialect": "mysql"
   }
