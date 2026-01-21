@@ -11,8 +11,8 @@ const PORT = process.env.PORT || 5000;
     // connect DB
     await sequelize.authenticate()
 
-    app.listen(PORT, () => {
-      console.log(`Server jalan di http://localhost:${PORT}`)
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server jalan di http://192.168.148.201:${PORT}`)
     })
   }
 )();
