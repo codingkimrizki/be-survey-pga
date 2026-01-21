@@ -29,6 +29,10 @@ app.use('/api/users', UsersRoute)
 const AnswersRoute = require('./routes/answers.route')
 app.use('/api/answers', AnswersRoute)
 
+//roles
+const RolesRoute = require('./routes/roles.route')
+app.use('/api/role', RolesRoute)
+
 // route test
 app.get('/', (req, res) => {
   res.send('HELLO WORLD 🔥')
