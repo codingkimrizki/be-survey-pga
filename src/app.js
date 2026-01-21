@@ -9,7 +9,8 @@ const app = express()
 app.use(cors({
     origin: [
     "http://localhost:5173",
-    "http://192.168.147.210:4182"
+    "http://192.168.147.210:4182",
+    "http://192.168.148.201:4183"
   ],
   credentials: true,
 }))
