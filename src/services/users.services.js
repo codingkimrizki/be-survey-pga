@@ -89,7 +89,7 @@ exports.sendResetEmail = async (email, token) => {
   })
 
   await transporter.sendMail({
-    from: `Hirose App <${process.env.SMTP_USER}>`,
+    from: `HIROSE-RBA-ETHIC <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Reset Password',
     html: `
