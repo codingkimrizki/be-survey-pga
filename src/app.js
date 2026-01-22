@@ -11,8 +11,8 @@ app.use(cors({
     "http://localhost:5173",
     "http://192.168.147.210:4182",
     "http://192.168.148.201:4183",
-    "https://rba-ethic.hrs-id.com/*",
-    "https://rba-ethic-backend.hrs-id.com/*"
+    "https://rba-ethic.hrs-id.com",
+    "https://rba-ethic-backend.hrs-id.com"
   ],
   credentials: true,
 }))
