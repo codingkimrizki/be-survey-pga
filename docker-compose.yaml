@@ -21,6 +21,8 @@ services:
     restart: always
     ports:
       - '3000:3000'
+    # expose:
+    #   - "3000"  
     env_file:
       - .env
     environment:
@@ -44,10 +46,22 @@ services:
     container_name: mailhog
     restart: always
     ports:
-      - "1025:1025"  # SMTP
-      - "8025:8025"  # Web UI
+      - "1025:1025"  
+      - "8025:8025"  
     networks:
       - rizki-app-network
+  
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: iot-survey-pga-nginx
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - rizki-app-network
 
 networks:
   rizki-app-network:
