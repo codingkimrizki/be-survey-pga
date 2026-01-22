@@ -12,17 +12,6 @@ exports.createAnswers = async (answersArray, ipAddress) => {
   return result;
 };
 
-//ambil supplier
-exports.getAnswers = async () => {
-  try {
-    const answers = await Answers.findAll()
-    return answers
-  } catch (err) {
-    console.error('Error in getAnswers:', err)
-    throw err
-  }
-}
-
 exports.getAnswersWithIpStats = async () => {
   try {
     const answers = await Answers.findAll()
@@ -70,3 +59,45 @@ exports.getAnswersWithIpStats = async () => {
     throw err
   }
 }
+
+//ambil semua jawaban suggest
+exports.getAnswers = async () => {
+  try {
+    const answers = await Answers.findAll({
+      include: [
+        {
+          model: Questions,
+          where: {question_type: "suggest"},
+          attributes: ["question_text"]
+        }
+      ],
+      attributes: ["answers_value"]
+    })
+    return answers
+  } catch (err) {
+    console.error('Error in getAnswers:', err)
+    throw err
+  }
+}
+
+exports.ollamaPrompt = async (feedbackList) => {
+  return `
+        Ringkas semua feedback dengan tampilkan keyword yang spesifik, misal jikalau sudah baik, bagian mana yang sudah baik dan apa kira-kira yang harus ada untuk kedepannya, dan jikalau kurang baik bagian mana dan apa yang perlu ditingkatkan. 
+    `;
+}
+
+exports.ollamaGenerate = async (propmt) => {
+  try{
+      const ai = await axios.post(`${OLLAMA_URL}/api/generate`, {
+        model: "gemma3:1b",
+        prompt,
+        stream: false
+      });
+
+    return ai.data.response.trim();
+  }catch{
+    console.error("Ollama error:", err.message);
+    throw err; // lempar ke controller
+  }
+}
+

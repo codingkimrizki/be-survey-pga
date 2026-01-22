@@ -1,3 +1,4 @@
+const redis = require('../config/redis');
 const answersService = require('../services/answers.services');
 const httpStatus = require('../constants/httpStatus');
 
@@ -45,6 +46,28 @@ exports.supplierAnswers = async (req, res) => {
       .status(httpStatus.INTERNAL_SERVER_ERROR)
       .json({ message: err.message })
   }
-}
+};
+
+// exports.saveOllamaAnswers = async (req, res) => {
+//  try {
+//   const answers = await answersService.getAnswers();
+//   const prompt = await answersService.ollamaPrompt (answers);
+//   const generate = await answersService.ollamaGenerate (prompt);
+
+//   //save to redis
+//   const ollamaSave= `ollama:`;
+//   await redis.set(ollamaSave, generate, {EX: 3600});
+
+//   //ambil dari redis
+//   const cached = await redis.get(key);
+
+//   //Kirim ke client
+//   res.json({ aiSummary: cached });
+  
+//  }catch(err){
+//   console.error(err);
+//   res.status(500).json({ error: err.message });
+//  }
+// }
 
 
