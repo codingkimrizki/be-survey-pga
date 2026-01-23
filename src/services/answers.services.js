@@ -1,4 +1,5 @@
-const { Answers } = require('../../models')
+const { Answers, Questions } = require('../../models')
+const axios = require('axios')
 
 //submit jawaban
 exports.createAnswers = async (answersArray, ipAddress) => {
@@ -60,18 +61,19 @@ exports.getAnswersWithIpStats = async () => {
   }
 }
 
-//ambil semua jawaban suggest
+// ambil semua jawaban suggest
 exports.getAnswers = async () => {
   try {
     const answers = await Answers.findAll({
       include: [
         {
           model: Questions,
+          as: 'question',
           where: {question_type: "suggest"},
           attributes: ["question_text"]
         }
       ],
-      attributes: ["answers_value"]
+      attributes: ["answer"]
     })
     return answers
   } catch (err) {
@@ -80,22 +82,37 @@ exports.getAnswers = async () => {
   }
 }
 
-exports.ollamaPrompt = async (feedbackList) => {
+exports.ollamaPrompt = async (answers) => {
+  const answerText = answers
+    .map((a, i) =>
+      `${i + 1}. (${a.question?.question_text}) ${a.answer}`
+    )
+    .join('\n')
+
+    console.log('ANSWER TEXT KE OLLAMA:\n', answerText)
+
   return `
-        Ringkas semua feedback dengan tampilkan keyword yang spesifik, misal jikalau sudah baik, bagian mana yang sudah baik dan apa kira-kira yang harus ada untuk kedepannya, dan jikalau kurang baik bagian mana dan apa yang perlu ditingkatkan. 
-    `;
+    Ringkas semua jawaban yang ada dari ${answerText}
+    `
 }
 
-exports.ollamaGenerate = async (propmt) => {
+
+exports.ollamaGenerate = async (prompt) => {
   try{
-      const ai = await axios.post(`${OLLAMA_URL}/api/generate`, {
+      const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL
+      console.log('OLLAMA_URL:', OLLAMA_BASE_URL)
+      console.log('PROMPT KE OLLAMA:', prompt)
+
+      const ai = await axios.post(`${OLLAMA_BASE_URL}/api/generate`, {
         model: "gemma3:1b",
         prompt,
         stream: false
-      });
+      })
+
+      console.log('RAW RESPONSE OLLAMA:', ai.data)
 
     return ai.data.response.trim();
-  }catch{
+  }catch(err){
     console.error("Ollama error:", err.message);
     throw err; // lempar ke controller
   }

@@ -48,26 +48,26 @@ exports.supplierAnswers = async (req, res) => {
   }
 };
 
-// exports.saveOllamaAnswers = async (req, res) => {
-//  try {
-//   const answers = await answersService.getAnswers();
-//   const prompt = await answersService.ollamaPrompt (answers);
-//   const generate = await answersService.ollamaGenerate (prompt);
+exports.saveOllamaAnswers = async (req, res) => {
+ try {
+  const answers = await answersService.getAnswers();
+  const prompt = await answersService.ollamaPrompt (answers);
+  const generate = await answersService.ollamaGenerate (prompt);
 
-//   //save to redis
-//   const ollamaSave= `ollama:`;
-//   await redis.set(ollamaSave, generate, {EX: 3600});
+  // // save to redis
+  // const ollamaSave= `ollama:`;
+  // await redis.set(ollamaSave, generate, {EX: 3600});
 
-//   //ambil dari redis
-//   const cached = await redis.get(key);
+  // // ambil dari redis
+  // const cached = await redis.get(key);
 
-//   //Kirim ke client
-//   res.json({ aiSummary: cached });
+  //Kirim ke client
+  res.json({ aiSummary: generate });
   
-//  }catch(err){
-//   console.error(err);
-//   res.status(500).json({ error: err.message });
-//  }
-// }
+ }catch(err){
+  console.error(err);
+  res.status(500).json({ error: err.message });
+ }
+}
 
 
