@@ -25,6 +25,7 @@ exports.getAnswersWithIpStats = async () => {
     answers.forEach(ans => {
       const date = ans.createdAt.toISOString().slice(0, 10) // YYYY-MM-DD
       const ip = ans.ipAddress
+      const key = `${date}_${ip}`
 
       // init set per tanggal
       if (!ipSetPerDate[date]) ipSetPerDate[date] = new Set()
@@ -34,9 +35,10 @@ exports.getAnswersWithIpStats = async () => {
       if (!statusPerIp[ip]) statusPerIp[ip] = []
       statusPerIp[ip].push(ans.answer)
 
-      // Status per IP
-      if (!ipStatusMap[ip]) ipStatusMap[ip] = 'clear' // default clear
+      // Status per IP and date
+      if (!ipStatusMap[key]) ipStatusMap[key] = 'clear' // default clear
       if (ans.answer === 'Y') ipStatusMap[ip] = 'major' // kalau ada Y, jadi major
+
     })
 
     // total IP unik di semua tanggal
