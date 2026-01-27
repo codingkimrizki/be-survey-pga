@@ -1,4 +1,7 @@
 const { Answers, Questions } = require('../../models')
+const { sendMajorAlertEmail, getAdminEmails } = require('./users.services')
+const redis = require('../../src/config/redis')
+
 const axios = require('axios')
 
 //submit jawaban
@@ -37,7 +40,7 @@ exports.getAnswersWithIpStats = async () => {
 
       // Status per IP and date
       if (!ipStatusMap[key]) ipStatusMap[key] = 'clear' // default clear
-      if (ans.answer === 'Y') ipStatusMap[ip] = 'major' // kalau ada Y, jadi major
+      if (ans.answer === 'Y') ipStatusMap[key] = 'major' // kalau ada Y, jadi major
 
     })
 
@@ -54,7 +57,27 @@ exports.getAnswersWithIpStats = async () => {
     })
 
     // hitung total major
-    let totalMajor = Object.values(ipStatusMap).filter(status => status === 'major').length
+    const totalMajor = Object.values(ipStatusMap).filter(status => status === 'major').length
+
+    // //redis
+    // const lastSentMajor = Number((await redis.get('major:last_sent')) || 0)
+
+    // if (totalMajor > lastSentMajor) {
+    //   const admins = await getAdminEmails()
+    //   if (admins.length) {
+    //     await sendMajorAlertEmail(admins, totalMajor)
+    //     console.log('Major alert email sent')
+    //   }
+      
+    //   await redis.set('major:last_sent', totalMajor)
+    // }
+
+    if (totalMajor > 0) {
+      const admins = await getAdminEmails()
+      if (admins.length) {
+        await sendMajorAlertEmail(admins, totalMajor)
+      }
+    }
 
     return { answers, totalUniqueIp, statusSummary, totalMajor }
   } catch (err) {

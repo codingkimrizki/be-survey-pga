@@ -35,6 +35,10 @@ app.use('/api/answers', AnswersRoute)
 const RolesRoute = require('./routes/roles.route')
 app.use('/api/role', RolesRoute)
 
+//user location
+const UserLocation = require('./routes/userLocation.route')
+app.use('/api/userlocation', UserLocation)
+
 // route test
 app.get('/', (req, res) => {
   res.send('HELLO WORLD 🔥')

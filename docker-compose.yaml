@@ -32,22 +32,12 @@ services:
     volumes:
       - ./logs:/app/logs
   
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: survey_redis
-  #   restart: unless-stopped
-  #   ports:
-  #     - "${REDIS_PORT}:6379"
-  #   networks:
-  #     - rizki-app-network
-      
-  mailhog:
-    image: mailhog/mailhog
-    container_name: mailhog
-    restart: always
+  redis:
+    image: redis:7-alpine
+    container_name: survey_redis_pga
+    restart: unless-stopped
     ports:
-      - "1025:1025"  
-      - "8025:8025"  
+      - "${REDIS_PORT}:6379"
     networks:
       - rizki-app-network
   

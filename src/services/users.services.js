@@ -10,7 +10,7 @@ exports.findUserByEmail = async (email) => {
         include: [
             {
                 model: UserRole,
-                as: 'role',          // sama kayak alias di model Users
+                as: 'role',
             }
         ]
     });
@@ -44,7 +44,7 @@ exports.logout = async (token) => {
   return await BlacklistToken.create({ token });
 };
 
-/// create token
+//create token
 exports.createPasswordResetToken = async (userId) => {
   const token = crypto.randomBytes(32).toString('hex')
 
@@ -100,7 +100,7 @@ exports.sendResetEmail = async (email, token) => {
   })
 }
 
-// === USER ===
+//USER
 exports.updateUserPasswordById = async (userId, newPassword) => {
   const user = await Users.findByPk(userId)
   if (!user) return null
@@ -113,7 +113,6 @@ exports.updateUserPasswordById = async (userId, newPassword) => {
 }
 
 //USER MANAGEMENT
-//1. get all user
 exports.getAllUsers = async ({
   page = 1,
   pageSize = 10,
@@ -121,12 +120,22 @@ exports.getAllUsers = async ({
   sortBy = 'roleName',
   order = 'asc',
 }) => {
-  // SAFETY GUARD (anti NaN)
   page = Number.isInteger(page) && page > 0 ? page : 1
   pageSize = Number.isInteger(pageSize) && pageSize > 0 ? pageSize : 10
-
   const offset = (page - 1) * pageSize
 
+  // Mapping sortBy FE ke kolom DB
+  const columnMap = {
+    name: 'name_users',
+    email: 'email',
+    roleName: 'id_user_role', // kita handle relasi khusus nanti
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+  }
+
+  const orderColumn = columnMap[sortBy] || 'id_users'
+
+  // Filter pencarian
   const where = search
     ? {
         name_users: {
@@ -135,18 +144,21 @@ exports.getAllUsers = async ({
       }
     : {}
 
-  const orderColumn =
-    sortBy === 'roleName' ? 'id_user_role' : sortBy
+  // Build order array
+  const orderArray =
+    sortBy === 'roleName'
+      ? [[{ model: UserRole, as: 'role' }, 'name_role', order.toUpperCase()]]
+      : [[orderColumn, order.toUpperCase()]]
 
   const { rows, count } = await Users.findAndCountAll({
     where,
     limit: pageSize,
     offset,
-    order: [[orderColumn, order.toUpperCase()]],
+    order: orderArray,
     include: [
       {
         model: UserRole,
-        as: 'role', // ⚠️ HARUS SAMA DENGAN Users.belongsTo
+        as: 'role', // pastikan sama dengan Users.belongsTo
         attributes: ['name_role'],
       },
     ],
@@ -170,7 +182,7 @@ exports.getAllUsers = async ({
   }
 }
 
-//2.update
+//update
 exports.updateUserRoleById = async (userId, roleId) => {
   const user = await Users.findByPk(userId)
   if (!user) throw new Error('User not found')
@@ -180,3 +192,47 @@ exports.updateUserRoleById = async (userId, roleId) => {
 
   return user
 }
+
+//email major
+  //1. find user with admin role
+  exports.getAdminEmails = async () => {
+    const admins = await Users.findAll({
+      include: [
+        {
+          model: UserRole,
+          as: 'role',
+          where: { name_role: 'admin' },
+          attributes: [],
+        },
+      ],
+      attributes: ['email', 'name_users'],
+    })
+
+    return admins
+  }
+  //2. send email 
+  exports.sendMajorAlertEmail = async (admins, totalMajor) => {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    })
+
+    const emails = admins.map(a => a.email)
+
+    await transporter.sendMail({
+      from: 'HIROSE-RBA-ETHIC <no-reply@pga.com>',
+      to: emails,
+      subject: 'Major Issue Detected',
+      html: `
+        <h2>Major Issue Alert</h2>
+        <p>There are <b>${totalMajor}</b> major issues detected.</p>
+        <p>Please login to dashboard for details.</p>
+      `,
+    })
+  }
+

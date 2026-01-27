@@ -159,10 +159,8 @@ exports.ResetPassword = async (req, res) => {
 
 
 //USER MANAGEMENT
-//1. get all user
 exports.getAllUsers = async (req, res) => {
   try {
-    // DEFAULT + CAST AMAN
     const page = Number(req.query.page) || 1
     const pageSize = Number(req.query.pageSize) || 10
     const search = req.query.search || ''
