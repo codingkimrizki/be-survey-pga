@@ -1,14 +1,19 @@
 // migrate.js
-const { execSync } = require("child_process");
+const { run } = require('sequelize-cli/lib/sequelize');
 
-try {
-  console.log("🚀 Running migrations...");
-  execSync("npx sequelize-cli db:migrate", { stdio: "inherit" });
+async function main() {
+  try {
+    console.log('🚀 Running migrations...');
+    await run(['db:migrate']);
 
-//   console.log("🌱 Running seeds...");
-//   execSync("npx sequelize-cli db:seed:all", { stdio: "inherit" });
+    // console.log('🌱 Running seeds...');
+    // await run(['db:seed:all']);
 
-} catch (err) {
-  console.error(err);
-  process.exit(1);
+    console.log('✅ Done!');
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
 }
+
+main();
