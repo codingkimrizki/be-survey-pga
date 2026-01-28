@@ -230,8 +230,13 @@ exports.updateUserRoleById = async (userId, roleId) => {
       subject: 'Major Issue Detected',
       html: `
         <h2>Major Issue Alert</h2>
-        <p>There are <b>${totalMajor}</b> major issues detected.</p>
-        <p>Please login to dashboard for details.</p>
+        <p>There are new major issues detected.</p>
+        <p>
+          Please login to the dashboard for details or click the link here: 
+          <a href="https://rba-ethic.hrs-id.com/" target="_blank" rel="noopener noreferrer">
+            https://rba-ethic.hrs-id.com/
+          </a>.
+        </p>
       `,
     })
   }
