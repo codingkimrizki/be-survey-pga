@@ -13,7 +13,7 @@ echo "✅ MySQL is ready!"
 echo "🚀 Running migrations..."
 
 # npx sequelize db:migrate
-npx sequelize-cli db:migrate
+node node_modules/.bin/sequelize-cli db:migrate
 
 # seed
 echo "🌱 Running seeds if needed..."
