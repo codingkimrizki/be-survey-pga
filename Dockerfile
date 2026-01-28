@@ -9,7 +9,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # INSTALL SEMUA DEPENDENCY TERMASUK DEV
-RUN npm install --include=dev
+RUN npm install --include=dev \
+    && chmod -R 755 node_modules/.bin  
 
 # SET NODE_ENV PRODUCTION SETELAH npm install
 ENV NODE_ENV=production
