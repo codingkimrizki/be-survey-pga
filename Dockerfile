@@ -7,7 +7,12 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+
+# INSTALL SEMUA DEPENDENCY TERMASUK DEV
+RUN npm install --include=dev
+
+# SET NODE_ENV PRODUCTION SETELAH npm install
+ENV NODE_ENV=production
 
 COPY . .
 
