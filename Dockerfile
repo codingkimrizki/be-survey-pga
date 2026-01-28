@@ -2,7 +2,9 @@
 FROM node:20-slim
 
 # Install netcat
-RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \ 
+    && apt-get install -y netcat-openbsd \ 
+    && rm -rf /var/lib/apt/lists/*
 
 # Buat working directory di container
 WORKDIR /app
@@ -12,9 +14,6 @@ COPY package*.json ./
 
 # Install dependencies
 RUN npm install --include=dev
-
-# Pastikan semua binary di node_modules/.bin executable
-RUN chmod +x ./node_modules/.bin/*
 
 # Copy semua file project
 COPY . .
