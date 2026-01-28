@@ -54,7 +54,7 @@ exports.UserLogin = async (req, res) => {
        
        //cek email
         const user = await findUserByEmail(email);
-        console.log(user.role.name_role);
+        console.log(user.role?.name_role);
         if (!user) return res.status(404).json({ message: "User not found" });
 
         // cek password
