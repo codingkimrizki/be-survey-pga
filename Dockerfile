@@ -13,7 +13,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --include=dev
+RUN npm install --include=dev \
+    && chmod -R 755 node_modules/.bin
 
 # Copy semua file project
 COPY . .
