@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 echo "⏳ Waiting for MySQL to be ready..."
 
@@ -13,11 +14,7 @@ echo "✅ MySQL is ready!"
 echo "🚀 Running migrations..."
 
 # npx sequelize db:migrate
-npx sequelize-cli db:migrate
-
-# seed
-echo "🌱 Running seeds if needed..."
-npx sequelize-cli db:seed:all
+node migrate.js
 
 # start server
 echo "🔥 Starting server..."
